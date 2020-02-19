@@ -59,7 +59,13 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
     public IJPanelTabBar(IntelliJPanel intelliJPanel, int direction){
 
-        highLightColor = SwingUtils.darken(getBackground(),-20);
+        if(getBackground().getRed()<80){
+            highLightColor = SwingUtils.darken(getBackground(),-getBackground().getRed());
+        }else{
+            highLightColor = SwingUtils.darken(getBackground(),getBackground().getRed());
+        }
+
+
         this.intelliJPanel = intelliJPanel;
         this.direction = direction;
         setLayout(new BorderLayout());
@@ -108,6 +114,41 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
     public int getVisibleTabCount(){
         return splitMode.getVisibleTabCount()+unSplitMode.getVisibleTabCount();
+    }
+
+    public boolean isActive(){
+        return tabContent.isVisible();
+    }
+
+    public Cursor getSliderCursor(){
+        if((direction == LEFT)||(direction == RIGHT)){
+            return Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
+        }else{
+            return Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+        }
+    }
+
+    int sliderSize = 5;
+    public Rectangle getSliderBound(){
+        if(direction==LEFT){
+            Rectangle r = getBounds();
+            r.setBounds(r.width-sliderSize/2,r.y,3*sliderSize,r.height);
+            return r;
+
+        }else if(direction == RIGHT){
+            Rectangle r = getBounds();
+            r.setBounds(r.x-sliderSize/2,r.y,3*sliderSize,r.height);
+            return r;
+        }else if(direction==TOP){
+            Rectangle r = getBounds();
+            r.setBounds(r.x,r.y+r.height-sliderSize,r.width,2*sliderSize);
+            return r;
+        }else if(direction==BOTTOM){
+            Rectangle r = getBounds();
+            r.setBounds(r.x,r.y-sliderSize,r.width,2*sliderSize);
+            return r;
+        }
+        return null;
     }
 
     public void refresh(){
@@ -315,7 +356,7 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
             BufferedImage bufferedImage1 = new BufferedImage(Math.max(splitMode.boundInGlass.width,20),Math.max(splitMode.boundInGlass.height,20),BufferedImage.TYPE_INT_ARGB);
             BufferedImage bufferedImage2 = new BufferedImage(Math.max(splitMode.boundInGlass.width,20),Math.max(splitMode.boundInGlass.height,20),BufferedImage.TYPE_INT_ARGB);
-            Color color = Color.WHITE;
+            Color color = highLightColor;
             {
                 Graphics2D graphics2D =  bufferedImage1.createGraphics();
                 graphics2D.setColor(color);

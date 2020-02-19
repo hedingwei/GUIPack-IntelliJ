@@ -5,6 +5,8 @@ import org.jdesktop.swingx.JXPanel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import static com.yunxin.mygui.intellij.mcomponent.partview.IJPanelTabBar.*;
@@ -30,6 +32,7 @@ public class IJPanelTabMode extends JXPanel {
 
         setDoubleBuffered(true);
         setBorder(new MLineBorder(tab.intelliJPanel.defaultBorderColor,0,false,false,false,false));
+        addMouseMotionListener(new MouseAdapter() {});
     }
 
     private void initComponents() {
