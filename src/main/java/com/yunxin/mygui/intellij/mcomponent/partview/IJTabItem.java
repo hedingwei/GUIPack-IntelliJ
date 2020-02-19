@@ -26,7 +26,11 @@ import static com.yunxin.mygui.intellij.mcomponent.partview.IJPanelTabBar.MODE_S
 public class IJTabItem extends JToggleButton implements ItemListener, MouseMotionListener, MouseListener {
 
     public static final int LEFT = 0;
+
+
     public static final int RIGHT = 1;
+
+
     public static final int BOTTOM = 2;
     public static final int TOP = 3;
 
@@ -202,76 +206,86 @@ public class IJTabItem extends JToggleButton implements ItemListener, MouseMotio
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
-        if(!isDragging){
-            isDragging = true;
-            tmpParentMode = mode;
-            tmpParentIndex = mode.getTabIndex(this);
-            setVisible(false);
-            initPoint = e.getPoint();
-            dragImageLabel.setPreferredSize(getSize());
-            dragImageLabel.setSize(getSize());
-            int m = Math.min(getSize().width,getSize().height);
-            glueButton.setPreferredSize(new Dimension(m,m));
-            glueButton.setSize((new Dimension(m,m)));
-            glueButton.setBackground(SwingUtils.darken(IntelliJPanel.defaultBorderColor,20));
-            getImageOfComponent();
-            getGlassPane().add(dragImageLabel);
-        }
-
-        if(isDragging){
-
-            dragPointInGlassPane = SwingUtilities.convertPoint(e.getComponent(),e.getX(),e.getY(),mode.tab.intelliJPanel.getGlassPane());
-            dragImageLabel.setLocation(dragPointInGlassPane.x-initPoint.x,dragPointInGlassPane.y-initPoint.y);
-
-
-            mode.tab.intelliJPanel.updateHighLightBounds();
-            IJPanelTabMode tmp =  getSplitMode(dragPointInGlassPane);
-            mode.tab.intelliJPanel.updateHighLightBounds();
-            if(tmp==null){
-
-                if(dragToMode==null){
-                }else{
-                    dragToMode.tab.unHighLight();
-                    cleanGlueButton();
-                    dragToMode.tab.updateUI();
-                }
-            }else{
-                dragToMode = tmp;
-
-                dragToMode.tab.highLight();
-                cleanGlueButton();
-                Component component = SwingUtilities.getDeepestComponentAt(mode.tab.intelliJPanel.getContentPane(),dragPointInGlassPane.x,dragPointInGlassPane.y);
-                if(component instanceof IJTabItem){
-                    Point p = SwingUtilities.convertPoint(getGlassPane(),dragPointInGlassPane.x,dragPointInGlassPane.y,component);
-                    tempIndex = dragToMode.getTabIndex((IJTabItem) component);
-                    if((dragToMode.tab.direction==IJPanelTabBar.LEFT)||(dragToMode.tab.direction==IJPanelTabBar.RIGHT)){
-
-                        if(p.y>(component.getHeight()/2)){
-                            addBefore = false;
-                            dragToMode.addTab(glueButton,tempIndex+1);
-                        }else{
-                            addBefore = true;
-                            dragToMode.addTab(glueButton,tempIndex);
-                        }
-                    }else{
-                        if(p.x>(component.getWidth()/2)){
-                            addBefore = false;
-                            dragToMode.addTab(glueButton,tempIndex+1);
-                        }else{
-                            addBefore = true;
-                            dragToMode.addTab(glueButton,tempIndex);
-                        }
-                    }
-                    dragToMode.tab.updateUI();
-                }else if(component instanceof IJPanelTabMode){
-                    dragToMode.addTab(glueButton);
-                    dragToMode.tab.updateUI();
-
-                }
+    public synchronized void mouseDragged(MouseEvent e) {
+        synchronized (getTreeLock()){
+            if(!isDragging){
+                isDragging = true;
+                tmpParentMode = mode;
+                tmpParentIndex = mode.getTabIndex(this);
+                setVisible(false);
+                initPoint = e.getPoint();
+                dragImageLabel.setPreferredSize(getSize());
+                dragImageLabel.setSize(getSize());
+                int m = Math.min(getSize().width,getSize().height);
+                glueButton.setPreferredSize(new Dimension(m,m));
+                glueButton.setSize((new Dimension(m,m)));
+                glueButton.setBackground(SwingUtils.darken(IntelliJPanel.defaultBorderColor,20));
+                getImageOfComponent();
+                getGlassPane().add(dragImageLabel);
+                mode.tab.refresh();
+                mode.tab.updateHoverSize();
             }
 
+            if(isDragging){
+
+                for(int i=0;i<4;i++){
+                    mode.tab.intelliJPanel.tabBars[i].updateHoverSize();
+                }
+                dragPointInGlassPane = SwingUtilities.convertPoint(e.getComponent(),e.getX(),e.getY(),mode.tab.intelliJPanel.getGlassPane());
+                dragImageLabel.setLocation(dragPointInGlassPane.x-initPoint.x,dragPointInGlassPane.y-initPoint.y);
+                IJPanelTabMode tmp =  getSplitMode(dragPointInGlassPane);
+
+                if(tmp==null){
+
+                    if(dragToMode!=null){
+                        dragToMode.tab.unHighLight();
+                        cleanGlueButton();
+                        dragToMode.tab.updateUI();
+                        dragToMode = tmp;
+                        return;
+                    }
+                }
+                if(tmp!=null){
+                    dragToMode = tmp;
+
+                    dragToMode.tab.highLight();
+                    cleanGlueButton();
+
+                    Component component = SwingUtilities.getDeepestComponentAt(mode.tab.intelliJPanel.getContentPane(),dragPointInGlassPane.x,dragPointInGlassPane.y);
+                    if(component instanceof IJTabItem){
+                        Point p = SwingUtilities.convertPoint(getGlassPane(),dragPointInGlassPane.x,dragPointInGlassPane.y,component);
+                        tempIndex = dragToMode.getTabIndex((IJTabItem) component);
+                        if((dragToMode.tab.direction==IJPanelTabBar.LEFT)||(dragToMode.tab.direction==IJPanelTabBar.RIGHT)){
+
+                            if(p.y>(component.getHeight()/2)){
+                                addBefore = false;
+                                dragToMode.addTab(glueButton,tempIndex+1);
+                            }else{
+                                addBefore = true;
+                                dragToMode.addTab(glueButton,tempIndex);
+                            }
+                        }else{
+                            if(p.x>(component.getWidth()/2)){
+                                addBefore = false;
+                                dragToMode.addTab(glueButton,tempIndex+1);
+                            }else{
+                                addBefore = true;
+                                dragToMode.addTab(glueButton,tempIndex);
+                            }
+                        }
+                        dragToMode.tab.updateUI();
+                    }else if(component instanceof IJPanelTabMode){
+                        dragToMode.addTab(glueButton);
+                        dragToMode.tab.updateUI();
+
+                    }else{
+//                        System.out.println("else...");
+                    }
+                }
+
+            }
         }
+
 
     }
 
@@ -321,18 +335,18 @@ public class IJTabItem extends JToggleButton implements ItemListener, MouseMotio
 
                 mode = dragToMode;
                 updateIcons();
+                mode.tab.refresh();
+                mode.updateUI();
                 setSelected(isSelected);
             }
 
             {
                 setVisible(true);
-
             }
             try{
                 cleanGlueButton();
             }catch (Throwable t){}
             try {
-
                 mode.tab.intelliJPanel.clearHighLighter();
             }catch (Throwable t){}
 
@@ -397,7 +411,6 @@ public class IJTabItem extends JToggleButton implements ItemListener, MouseMotio
                 return mode.tab.intelliJPanel.tabBars[i].unSplitMode;
             }
         }
-
         return null;
     }
 }

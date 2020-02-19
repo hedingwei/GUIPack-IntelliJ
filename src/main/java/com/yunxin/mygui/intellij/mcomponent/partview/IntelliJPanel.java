@@ -2,6 +2,7 @@ package com.yunxin.mygui.intellij.mcomponent.partview;
 
 import com.formdev.flatlaf.util.ColorFunctions;
 import com.yunxin.mygui.share.component.BetterGlassPane;
+import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXImagePanel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXRootPane;
@@ -48,18 +49,6 @@ public class IntelliJPanel extends JXRootPane{
         getContentPane().add(new JXPanel(),BorderLayout.CENTER);
 
 
-
-//        System.out.println(getContentPane().getLayout());
-
-
-//        setLayout(new BorderLayout());
-//        add(tabBars[LEFT],BorderLayout.WEST);
-//        add(tabBars[RIGHT],BorderLayout.EAST);
-//        add(tabBars[TOP],BorderLayout.NORTH);
-//        add(new JXPanel(),BorderLayout.CENTER);
-
-
-//
         tabBars[LEFT].getMode(MODE_SPLIT).addTab("Favoriates",null,new SimplePartView("Project Split"));
         tabBars[LEFT].getMode(MODE_UNSPLIT).addTab("Project",null,new SimplePartView("LEFT UNSplit 1"));
         tabBars[LEFT].getMode(MODE_UNSPLIT).addTab("Structure",null,new SimplePartView("LEFT UNSplit 2"));
@@ -67,14 +56,8 @@ public class IntelliJPanel extends JXRootPane{
         tabBars[RIGHT].getMode(MODE_SPLIT).addTab("RIGHT SPLIT",null,new SimplePartView("RIGHT Split"));
         tabBars[RIGHT].getMode(MODE_UNSPLIT).addTab("RIGHT UNSPLIT",null,new SimplePartView("RIGHT UNSplit"));
 
-//        tabBars[TOP].getMode(MODE_SPLIT).addTab("TOP SPLIT",null,new SimplePartView("TOP Split"));
-//        tabBars[TOP].getMode(MODE_UNSPLIT).addTab("TOP UNSPLIT",null,new SimplePartView("TOP UNSplit"));
-
         tabBars[BOTTOM].getMode(MODE_SPLIT).addTab("BOTTOM SPLIT",null,new SimplePartView("BOTTOM Split"));
         tabBars[BOTTOM].getMode(MODE_UNSPLIT).addTab("BOTTOM UNSPLIT",null,new SimplePartView("BOTTOM UNSplit"));
-
-
-//        tabBars[LEFT].getMode(MODE_UNSPLIT).addTab(new JToggleButton("hello"));
 
 
     }
@@ -88,6 +71,7 @@ public class IntelliJPanel extends JXRootPane{
     public void clearHighLighter(){
         ((JXPanel)getGlassPane()).removeAll();
         ((JXPanel)getGlassPane()).updateUI();
+        updateHighLightBounds();
     }
 
     public static void main(String[] args){
@@ -108,29 +92,15 @@ public class IntelliJPanel extends JXRootPane{
 
 
 
-//        UIManager.put("SplitPane.background",new Color(20,20,20));
-
-//        UIManager.put("SplitPaneDivider.border",new MLineBorder(Color.lightGray,1,true,true,false,false));
-//        UIManager.put("ToggleButton.arc",0);
-//        UIManager.put("Button.arc",0);
-//        UIManager.put("TabbedPane.tabHeight",23);
-//        UIManager.put("TabbedPane.tabSelectionHeight",0);
-//        UIManager.put("TabbedPane.tabsOverlapBorder",true);
-//        UIManager.put("TabbedPane.contentSeparatorHeight",1);
-//        UIManager.put("TabbedPane.hasFullBorder",false);
-
-
         UIManager.put("Button.iconTextGap",4);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                JFrame frame = new JFrame("Test");
-//                new BetterGlassPane(frame.getRootPane());
+                JXFrame frame = new JXFrame("Test");
                 frame.getContentPane().setLayout(new BorderLayout());
                 frame.getContentPane().add(new IntelliJPanel(),BorderLayout.CENTER);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
                 frame.setPreferredSize(new Dimension(1024,768));
                 frame.pack();
                 frame.setLocationRelativeTo(null);

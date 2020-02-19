@@ -333,5 +333,15 @@ public class IJPanelTabMode extends JXPanel {
         return "<"+tab.direction+","+mode+">";
     }
 
+    public int getVisibleTabCount(){
+        int c = 0;
+        for(JComponent component : tabList){
+            if(component instanceof IJTabItem){
+                c++;
+            }
+        }
+        return c;
+    }
+
 
 }
