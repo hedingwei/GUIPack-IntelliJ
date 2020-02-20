@@ -1,6 +1,6 @@
 package com.yunxin.mygui.share;
 
-import com.yunxin.mygui.share.layout.HorizontalLayout;
+import com.yunxin.gui.share.layout.HorizontalLayout;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
