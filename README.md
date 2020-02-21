@@ -1,10 +1,20 @@
 # GUIPack-IntelliJ
 这个项目主要提供一组能够构建像IntelliJ的界面一样的组件集合。
 
+目前包括功能：
+1. 上下左右四个方位的dock布局。
+2. dock区域的拖拽修改大小
+3. dock上的tab的拖拽
+4. 对每个方位的dock还扩展了一个工具条
+5. 所有的这些功能封装在IntelliJPanel类中。
+
+
+
+
 ##界面截图示例
 ![a](doc/demo1.png)
 
-![b](doc/demo-video.gif)
+1[b](doc/demo-video.gif)
 
 
 ##代码示例
