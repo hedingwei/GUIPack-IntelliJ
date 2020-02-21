@@ -9,12 +9,18 @@
 5. 所有的这些功能封装在IntelliJPanel类中。
 
 
+感谢：flatlaf项目提供的LookAndFeel。
+
 
 
 ##界面截图示例
+####Darcular
 ![a](doc/demo1.png)
 
-1[b](doc/demo-video.gif)
+####Light
+![c](doc/demo2.png)
+
+![b](doc/demo-video.gif)
 
 
 ##代码示例

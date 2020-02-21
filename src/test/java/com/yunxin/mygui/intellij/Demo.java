@@ -19,7 +19,7 @@ public class Demo {
     public static void main(String[] args){
 
 
-        com.formdev.flatlaf.FlatDarkLaf.install();
+        com.formdev.flatlaf.FlatIntelliJLaf.install();
 
         UIManager.put("Button.iconTextGap",4);
 
