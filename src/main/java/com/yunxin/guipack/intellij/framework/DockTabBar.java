@@ -1,27 +1,35 @@
-package com.yunxin.gui.intellij.framework;
+package com.yunxin.guipack.intellij.framework;
 
 import org.jdesktop.swingx.JXPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 
+import static com.yunxin.guipack.intellij.framework.IntelliJPanel.*;
 
-public class IJPanelTabMode extends JXPanel {
+
+public class DockTabBar extends JXPanel {
 
     private static final Component[] EMPTY_ARRAY = new Component[0];
 
     int mode;
-    IJPanelTabBar tab;
+    Dock tab;
     ArrayList<JComponent> tabList = new ArrayList<>();
 
     Rectangle boundInGlass = null;
 
-     IJTabItem activeItem = null;
+     DockTab activeItem = null;
 
 
-    public IJPanelTabMode(IJPanelTabBar tab, int mode) {
+    public DockTabBar(Dock tab, int mode) {
         this.tab = tab;
         this.mode = mode;
         initComponents();
@@ -32,14 +40,14 @@ public class IJPanelTabMode extends JXPanel {
     }
 
     private void initComponents() {
-        if (((tab.direction == IJPanelTabBar.LEFT) || (tab.direction == IJPanelTabBar.RIGHT))) {
-            if (mode == IJPanelTabBar.MODE_SPLIT) {
+        if (((tab.direction == IntelliJPanel.LEFT) || (tab.direction == IntelliJPanel.RIGHT))) {
+            if (mode == IntelliJPanel.MODE_SPLIT) {
                 setLayout(new XVerticalLayout(0, false));
             } else {
                 setLayout(new XVerticalLayout(0, true));
             }
-        } else if (((tab.direction == IJPanelTabBar.TOP) || (tab.direction == IJPanelTabBar.BOTTOM))) {
-            if (mode == IJPanelTabBar.MODE_SPLIT) {
+        } else if (((tab.direction == IntelliJPanel.TOP) || (tab.direction == IntelliJPanel.BOTTOM))) {
+            if (mode ==IntelliJPanel. MODE_SPLIT) {
                 setLayout(new XHorizontalLayout(0, false));
             } else {
                 setLayout(new XHorizontalLayout(0, true));
@@ -52,8 +60,8 @@ public class IJPanelTabMode extends JXPanel {
         tabList.add(component);
     }
 
-    public IJTabItem addTab(String text, Icon icon, AbstractPartView content){
-        IJTabItem item = new IJTabItem(text,icon,this,content);
+    public DockTab addTab(String text, Icon icon, DockTabView content){
+        DockTab item = new DockTab(text,icon,this,content);
         item.setBackground(getBackground());
         addTab(item);
         return item;
@@ -135,13 +143,13 @@ public class IJPanelTabMode extends JXPanel {
         }
     }
 
-    public void setSelectedExcept(IJTabItem item, boolean select){
+    public void setSelectedExcept(DockTab item, boolean select){
         for(JComponent component: tabList){
             if(item==component) {
                 item.setSelected(select);
             }else{
-                if(component instanceof IJTabItem){
-                    ((IJTabItem) component).setSelected(!select);
+                if(component instanceof DockTab){
+                    ((DockTab) component).setSelected(!select);
                 }
             }
 
@@ -336,7 +344,7 @@ public class IJPanelTabMode extends JXPanel {
     public int getVisibleTabCount(){
         int c = 0;
         for(JComponent component : tabList){
-            if(component instanceof IJTabItem){
+            if(component instanceof DockTab){
                 c++;
             }
         }

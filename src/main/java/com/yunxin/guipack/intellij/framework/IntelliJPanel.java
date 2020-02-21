@@ -1,7 +1,7 @@
-package com.yunxin.gui.intellij.framework;
+package com.yunxin.guipack.intellij.framework;
 
-import com.yunxin.gui.share.SwingUtils;
-import com.yunxin.gui.share.component.BetterGlassPane;
+import com.yunxin.guipack.share.SwingUtils;
+import com.yunxin.guipack.share.component.BetterGlassPane;
 import org.jdesktop.swingx.JXEditorPane;
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXPanel;
@@ -23,7 +23,7 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
     public static int MODE_UNSPLIT = 1;
 
 
-    IJPanelTabBar[] tabBars = new IJPanelTabBar[4];
+    Dock[] tabBars = new Dock[4];
 
     static Color defaultBorderColor = null;
     static int defaultTabDivederSize = 6;
@@ -43,10 +43,10 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
 
     private void initComponents() {
 
-        tabBars[LEFT] = new IJPanelTabBar(this, LEFT);
-        tabBars[RIGHT] = new IJPanelTabBar(this, RIGHT);
-        tabBars[TOP] = new IJPanelTabBar(this,TOP);
-        tabBars[BOTTOM] = new IJPanelTabBar(this,BOTTOM);
+        tabBars[LEFT] = new Dock(this, LEFT);
+        tabBars[RIGHT] = new Dock(this, RIGHT);
+        tabBars[TOP] = new Dock(this,TOP);
+        tabBars[BOTTOM] = new Dock(this,BOTTOM);
 
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(tabBars[LEFT],BorderLayout.WEST);
@@ -68,24 +68,31 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
     }
 
 
-    public IJTabItem addTab(int direction, int split_mode, String text, Icon icon, AbstractPartView view){
+    public DockTab addTab(int direction, int split_mode, String text, Icon icon, DockTabView view){
         return tabBars[direction].getMode(split_mode).addTab(text,icon,view);
     }
 
-    public java.util.List<IJTabItem> getTabs(int direction, int split_mode){
-        java.util.List<IJTabItem> list = new ArrayList<>();
+    public DockTab addTab(Direction direction, SplitMode split_mode, String text, Icon icon, DockTabView view){
+        return tabBars[direction.ordinal()].getMode(split_mode.ordinal()).addTab(text,icon,view);
+    }
+
+
+
+
+    public java.util.List<DockTab> getTabs(int direction, int split_mode){
+        java.util.List<DockTab> list = new ArrayList<>();
         if(split_mode==MODE_SPLIT){
-            Component[] components = tabBars[direction].splitMode.getComponents();
+            Component[] components = tabBars[direction].splitModeTabBar.getComponents();
             for(Component c: components){
-                if(c instanceof IJTabItem){
-                    list.add((IJTabItem) c);
+                if(c instanceof DockTab){
+                    list.add((DockTab) c);
                 }
             }
         }else if(split_mode == MODE_UNSPLIT){
-            Component[] components = tabBars[direction].unSplitMode.getComponents();
+            Component[] components = tabBars[direction].unSplitModeTabBar.getComponents();
             for(Component c: components){
-                if(c instanceof IJTabItem){
-                    list.add((IJTabItem) c);
+                if(c instanceof DockTab){
+                    list.add((DockTab) c);
                 }
             }
         }
@@ -93,28 +100,28 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
         return list;
     }
 
-    public java.util.List<IJTabItem> getTabs(int direction){
-        java.util.List<IJTabItem> list =  getTabs(direction,MODE_UNSPLIT);
+    public java.util.List<DockTab> getTabs(int direction){
+        java.util.List<DockTab> list =  getTabs(direction,MODE_UNSPLIT);
         list.addAll(getTabs(direction,MODE_SPLIT));
         return list;
     }
 
-    public IJTabItem getActiveTab(int direction, int split_mode){
+    public DockTab getActiveTab(int direction, int split_mode){
         if(split_mode==MODE_UNSPLIT){
-            Component[] components = tabBars[direction].unSplitMode.getComponents();
+            Component[] components = tabBars[direction].unSplitModeTabBar.getComponents();
             for(Component c: components){
-                if(c instanceof IJTabItem){
-                    if(((IJTabItem) c).isSelected()){
-                        return (IJTabItem) c;
+                if(c instanceof DockTab){
+                    if(((DockTab) c).isSelected()){
+                        return (DockTab) c;
                     }
                 }
             }
         }else if(split_mode==MODE_SPLIT){
-            Component[] components = tabBars[direction].splitMode.getComponents();
+            Component[] components = tabBars[direction].splitModeTabBar.getComponents();
             for(Component c: components){
-                if(c instanceof IJTabItem){
-                    if(((IJTabItem) c).isSelected()){
-                        return (IJTabItem) c;
+                if(c instanceof DockTab){
+                    if(((DockTab) c).isSelected()){
+                        return (DockTab) c;
                     }
                 }
             }
@@ -122,11 +129,14 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
         return null;
     }
 
-    public IJPanelTabToolBar getToolBar(int direction){ return tabBars[direction].toolBar; }
+    public DockToolBar getToolBar(int direction){ return tabBars[direction].toolBar; }
 
-    public void setTabVisible(int direction, boolean visible){ tabBars[direction].modeArea.setVisible(visible); }
+    public DockToolBar getToolBar(Direction direction){ return tabBars[direction.ordinal()].toolBar; }
 
-    public void setTabItemViewSize(IJTabItem item, int size){ item.tabViewSize = size;}
+
+    public void setTabVisible(int direction, boolean visible){ tabBars[direction].tabBarArea.setVisible(visible); }
+
+    public void setTabItemViewSize(DockTab item, int size){ item.tabViewSize = size;}
 
     void updateHighLightBounds(){
         for(int i=0;i<4;i++){
@@ -140,52 +150,6 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
         updateHighLightBounds();
     }
 
-    public static void main(String[] args){
-
-
-        com.formdev.flatlaf.FlatDarkLaf.install();
-
-        UIManager.put("Button.iconTextGap",4);
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-
-                IntelliJPanel intelliJPanel = new IntelliJPanel();
-                intelliJPanel.addTab(IJPanelTabBar.LEFT,MODE_UNSPLIT,"Project",new com.formdev.flatlaf.icons.FlatFileViewComputerIcon(),new SimplePartView("Project"){{setPartContent(new JXEditorPane());}});
-                intelliJPanel.getToolBar(BOTTOM).add(new JToggleButton(new com.formdev.flatlaf.icons.FlatFileViewFloppyDriveIcon()){
-                    {
-                        addItemListener(new ItemListener() {
-                            @Override
-                            public void itemStateChanged(ItemEvent e) {
-                                JToggleButton button = (JToggleButton) e.getSource();
-                                if(button.isSelected()){
-                                    intelliJPanel.setTabVisible(IntelliJPanel.LEFT,true);
-                                    intelliJPanel.setTabVisible(IntelliJPanel.RIGHT,true);
-                                    intelliJPanel.setTabVisible(IntelliJPanel.TOP,true);
-                                    intelliJPanel.setTabVisible(IntelliJPanel.BOTTOM,true);
-                                }else{
-                                    intelliJPanel.setTabVisible(IntelliJPanel.LEFT,false);
-                                    intelliJPanel.setTabVisible(IntelliJPanel.RIGHT,false);
-                                    intelliJPanel.setTabVisible(IntelliJPanel.TOP,false);
-                                    intelliJPanel.setTabVisible(IntelliJPanel.BOTTOM,false);
-                                }
-                            }
-                        });
-                    }
-                });
-
-                JXFrame frame = new JXFrame("Test");
-                frame.getContentPane().setLayout(new BorderLayout());
-                frame.getContentPane().add(intelliJPanel,BorderLayout.CENTER);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setPreferredSize(new Dimension(1024,768));
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
-            }
-        });
-    }
 
 
     @Override
@@ -200,24 +164,24 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
 
             Dimension tmpDim = tabBars[activeResizeTabBar].getSize();
             if(activeResizeTabBar==LEFT){
-                tmpDim.width = e.getX() - tabBars[activeResizeTabBar].tabArea.getWidth();
-                for(IJTabItem tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.width = e.getX() - tabBars[activeResizeTabBar].toolBarArea.getWidth();
+                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.width;
                 }
             }else if(activeResizeTabBar==RIGHT){
-                tmpDim.width = (getWidth()-e.getX()) - tabBars[activeResizeTabBar].tabArea.getWidth();
-                for(IJTabItem tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.width = (getWidth()-e.getX()) - tabBars[activeResizeTabBar].toolBarArea.getWidth();
+                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.width;
                 }
 
             }else if(activeResizeTabBar==TOP){
-                tmpDim.height = e.getY() - tabBars[activeResizeTabBar].tabArea.getHeight();
-                for(IJTabItem tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.height = e.getY() - tabBars[activeResizeTabBar].toolBarArea.getHeight();
+                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.height;
                 }
             }else if(activeResizeTabBar==BOTTOM){
-                tmpDim.height = (getHeight()-e.getY()) - tabBars[activeResizeTabBar].tabArea.getHeight();
-                for(IJTabItem tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.height = (getHeight()-e.getY()) - tabBars[activeResizeTabBar].toolBarArea.getHeight();
+                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.height;
                 }
             }
@@ -233,8 +197,6 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
         }
 
     }
-
-
 
     @Override
     public void mouseMoved(MouseEvent e) {
@@ -289,6 +251,14 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
 
     }
 
+
+    public static enum Direction {
+        Left,Right,Bottom,Top
+    }
+
+    public static enum SplitMode {
+        Split,UnSplit
+    }
 
 
 }

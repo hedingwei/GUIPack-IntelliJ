@@ -1,4 +1,4 @@
-package com.yunxin.gui.share.component;
+package com.yunxin.guipack.share.component;
 
 import javax.swing.*;
 

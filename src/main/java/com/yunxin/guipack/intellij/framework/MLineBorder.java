@@ -1,4 +1,4 @@
-package com.yunxin.gui.intellij.framework;
+package com.yunxin.guipack.intellij.framework;
 
 import javax.swing.border.LineBorder;
 import java.awt.*;

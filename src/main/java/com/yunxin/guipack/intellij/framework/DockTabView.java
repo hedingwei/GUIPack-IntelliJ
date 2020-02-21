@@ -1,13 +1,13 @@
-package com.yunxin.gui.intellij.framework;
+package com.yunxin.guipack.intellij.framework;
 
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
-public abstract class AbstractPartView extends JXPanel{
+public abstract class DockTabView extends JXPanel{
     private JPanel contentHolder = null;
-    public AbstractPartView() {
+    public DockTabView() {
         setLayout(new BorderLayout());
         preInit();
         initComponents();

@@ -1,6 +1,6 @@
-package com.yunxin.gui.share.icon;
+package com.yunxin.guipack.share.icon;
 
-import com.yunxin.gui.share.SwingUtils;
+import com.yunxin.guipack.share.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;

@@ -5,10 +5,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.yunxin</groupId>
-	<artifactId>gui.intellij</artifactId>
+	<artifactId>guipack.intellij</artifactId>
 	<version>1.0-SNAPSHOT</version>
 
-	<name>IntelliJGUI</name>
+	<name>GUIPack-IntelliJ</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

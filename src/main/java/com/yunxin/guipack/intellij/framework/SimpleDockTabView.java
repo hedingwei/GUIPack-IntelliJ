@@ -1,21 +1,21 @@
-package com.yunxin.gui.intellij.framework;
+package com.yunxin.guipack.intellij.framework;
 
-import com.yunxin.gui.share.component.MLabel;
+import com.yunxin.guipack.share.component.MLabel;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SimplePartView extends AbstractPartView {
+public class SimpleDockTabView extends DockTabView {
 
     private JToolBar toolBar ;
     private JToolBar trailingBar;
     private MLabel titleLabel ;
 
-    public SimplePartView(String title) {
+    public SimpleDockTabView(String title) {
         this.titleLabel.setText(title);
     }
 
-    public SimplePartView(String title, Icon icon) {
+    public SimpleDockTabView(String title, Icon icon) {
         this.titleLabel.setText(title);
         this.titleLabel.setIcon(icon);
 

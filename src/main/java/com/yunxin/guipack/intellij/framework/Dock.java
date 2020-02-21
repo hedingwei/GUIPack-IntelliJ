@@ -1,13 +1,26 @@
-package com.yunxin.gui.intellij.framework;
+package com.yunxin.guipack.intellij.framework;
 
-import com.yunxin.gui.share.SwingUtils;
-import com.yunxin.gui.share.layout.VerticalLayout;
-import com.yunxin.gui.share.layout.HorizontalLayout;
+import com.yunxin.guipack.share.SwingUtils;
+import com.yunxin.guipack.share.layout.VerticalLayout;
+import com.yunxin.guipack.share.layout.HorizontalLayout;
 import org.jdesktop.swingx.JXImageView;
 import org.jdesktop.swingx.JXPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JSplitPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.event.HierarchyBoundsAdapter;
 import java.awt.event.HierarchyEvent;
 import java.awt.image.BufferedImage;
@@ -15,28 +28,21 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
-public class IJPanelTabBar extends JXPanel implements LayoutManager {
+import static com.yunxin.guipack.intellij.framework.IntelliJPanel.*;
 
-    public static final int LEFT = 0;
-    public static final int RIGHT = 1;
-    public static final int BOTTOM = 2;
-    public static final int TOP = 3;
-
-    public static int MODE_SPLIT = 0;
-    public static int MODE_UNSPLIT = 1;
+public class Dock extends JXPanel implements LayoutManager {
 
 
 
 
-
-    IJPanelTabToolBar toolBar;
-    IJPanelTabMode splitMode;
-    IJPanelTabMode unSplitMode;
+    DockToolBar toolBar;
+    DockTabBar splitModeTabBar;
+    DockTabBar unSplitModeTabBar;
 
     JSplitPane tabContent;
 
-    JXPanel tabArea;
-    JXPanel modeArea;
+    JXPanel toolBarArea;
+    JXPanel tabBarArea;
     IntelliJPanel intelliJPanel;
 
     int direction = 0;
@@ -57,7 +63,10 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
     PropertyChangeListener pcl;
 
-    public IJPanelTabBar(IntelliJPanel intelliJPanel, int direction){
+    JXImageView highLightPanel_split;
+    JXImageView highLightPanel_unsplit;
+
+    public Dock(IntelliJPanel intelliJPanel, int direction){
 
         if(getBackground().getRed()<80){
             highLightColor = SwingUtils.darken(getBackground(),-getBackground().getRed());
@@ -83,11 +92,11 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
                 Object o = ((JComponent)splitPane.getLeftComponent()).getClientProperty("myController");
                 if(o!=null){
-                    ((IJTabItem)o).splitLocation = (splitPane.getDividerLocation());
+                    ((DockTab)o).splitLocation = (splitPane.getDividerLocation());
                 }
                 o = ((JComponent)splitPane.getRightComponent()).getClientProperty("myController");
                 if(o!=null){
-                    ((IJTabItem)o).splitLocation= (splitPane.getDividerLocation());
+                    ((DockTab)o).splitLocation= (splitPane.getDividerLocation());
                 }
             }
         };
@@ -114,13 +123,13 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
 
     private void initComponents() {
-        tabArea = new JXPanel();
+        toolBarArea = new JXPanel();
 
-        toolBar = new IJPanelTabToolBar(this);
-        splitMode = new IJPanelTabMode(this,MODE_SPLIT);
-        unSplitMode = new IJPanelTabMode(this,MODE_UNSPLIT);
+        toolBar = new DockToolBar(this);
+        splitModeTabBar = new DockTabBar(this,MODE_SPLIT);
+        unSplitModeTabBar = new DockTabBar(this,MODE_UNSPLIT);
 
-        modeArea = new JXPanel();
+        tabBarArea = new JXPanel();
         tabContent = new JSplitPane();
         tabContent.setVisible(false);
         tabContent.setLeftComponent(null);
@@ -128,81 +137,83 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
         tabContent.setContinuousLayout(true);
         tabContent.setDividerSize(8);
 
+        highLightPanel_split = new JXImageView();
+        highLightPanel_unsplit = new JXImageView();
+
 
 
         if(direction == LEFT){
 
-            modeArea.setLayout(new GridLayout(2,1));
-            tabArea.setLayout(new HorizontalLayout(0,true));
-            tabArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,true,false,false));
+            tabBarArea.setLayout(new GridLayout(2,1));
+            toolBarArea.setLayout(new HorizontalLayout(0,true));
+            toolBarArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,true,false,false));
 
             toolBar.setOrientation(SwingConstants.VERTICAL);
             toolBar.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,true,false,false));
 
-            add(tabArea,BorderLayout.WEST);
+            add(toolBarArea,BorderLayout.WEST);
             add(tabContent,BorderLayout.CENTER);
 
             tabContent.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,true,false,false));
             tabContent.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-            modeArea.add(unSplitMode);
-            modeArea.add(splitMode);
-            tabArea.add(toolBar);
-            tabArea.add(modeArea);
+            tabBarArea.add(unSplitModeTabBar);
+            tabBarArea.add(splitModeTabBar);
+            toolBarArea.add(toolBar);
+            toolBarArea.add(tabBarArea);
         }else if(direction == RIGHT){
 
-            modeArea.setLayout(new GridLayout(2,1));
-            tabArea.setLayout(new HorizontalLayout(0,false));
-            tabArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,true,false,false,false));
+            tabBarArea.setLayout(new GridLayout(2,1));
+            toolBarArea.setLayout(new HorizontalLayout(0,false));
+            toolBarArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,true,false,false,false));
 
             toolBar.setOrientation(SwingConstants.VERTICAL);
             toolBar.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,true,false,false,false));
 
-            add(tabArea,BorderLayout.EAST);
+            add(toolBarArea,BorderLayout.EAST);
             add(tabContent,BorderLayout.CENTER);
-
 
             tabContent.setOrientation(JSplitPane.VERTICAL_SPLIT);
             tabContent.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,true,false,false,false));
 
-            modeArea.add(unSplitMode);
-            modeArea.add(splitMode);
-            tabArea.add(toolBar);
-            tabArea.add(modeArea);
+            tabBarArea.add(unSplitModeTabBar);
+            tabBarArea.add(splitModeTabBar);
+            toolBarArea.add(toolBar);
+            toolBarArea.add(tabBarArea);
         }else if(direction == TOP){
 
-            modeArea.setLayout(new GridLayout(1,2));
-            tabArea.setLayout(new VerticalLayout(0,true));
+            tabBarArea.setLayout(new GridLayout(1,2));
+            toolBarArea.setLayout(new VerticalLayout(0,true));
 
-            tabArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,false,true));
+            toolBarArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,false,true));
             toolBar.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,false,true));
             tabContent.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,false,true));
 
-            add(tabArea,BorderLayout.NORTH);
+            add(toolBarArea,BorderLayout.NORTH);
             add(tabContent,BorderLayout.CENTER);
 
             tabContent.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 
-            modeArea.add(unSplitMode);
-            modeArea.add(splitMode);
-            tabArea.add(toolBar);
-            tabArea.add(modeArea);
+            tabBarArea.add(unSplitModeTabBar);
+            tabBarArea.add(splitModeTabBar);
+            toolBarArea.add(toolBar);
+            toolBarArea.add(tabBarArea);
         }else if(direction == BOTTOM){
-            modeArea.setLayout(new GridLayout(1,2));
+            tabBarArea.setLayout(new GridLayout(1,2));
 
-            tabArea.setLayout(new VerticalLayout(0,false));
-            tabArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,true,false));
+            toolBarArea.setLayout(new VerticalLayout(0,false));
+            toolBarArea.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,true,false));
             toolBar.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,true,false));
 
             tabContent.setBorder(new MLineBorder(intelliJPanel.defaultBorderColor,1,false,false,true,false));
 
-            add(tabArea,BorderLayout.SOUTH);
+            add(toolBarArea,BorderLayout.SOUTH);
             add(tabContent,BorderLayout.CENTER);
 
-            modeArea.add(unSplitMode);
-            modeArea.add(splitMode);
-            tabArea.add(toolBar);
-            tabArea.add(modeArea);
+            tabBarArea.add(unSplitModeTabBar);
+            tabBarArea.add(splitModeTabBar);
+            toolBarArea.add(toolBar);
+            toolBarArea.add(tabBarArea);
         }
 
 
@@ -210,7 +221,7 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
 
     public int getVisibleTabCount(){
-        return splitMode.getVisibleTabCount()+unSplitMode.getVisibleTabCount();
+        return splitModeTabBar.getVisibleTabCount()+ unSplitModeTabBar.getVisibleTabCount();
     }
 
     public boolean isActive(){
@@ -251,30 +262,30 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
     public void refresh(){
 
         if(getVisibleTabCount()==0){
-            modeArea.setVisible(false);
+            tabBarArea.setVisible(false);
             tabContent.setVisible(false);
-            ((MLineBorder)tabArea.getBorder()).setInsets(false,false,false,false);
-            ((MLineBorder)tabArea.getBorder()).setInsets(false,false,false,false);
+            ((MLineBorder) toolBarArea.getBorder()).setInsets(false,false,false,false);
+            ((MLineBorder) toolBarArea.getBorder()).setInsets(false,false,false,false);
         }else{
-            modeArea.setVisible(true);
-            if((splitMode.activeItem==null)&&(unSplitMode.activeItem==null)){
+            tabBarArea.setVisible(true);
+            if((splitModeTabBar.activeItem==null)&&(unSplitModeTabBar.activeItem==null)){
                 tabContent.setVisible(false);
             }else{
                 tabContent.setVisible(true);
             }
 
             if(direction==LEFT){
-                ((MLineBorder)tabArea.getBorder()).setInsets(false,true,false,false);
-                ((MLineBorder)toolBar.getBorder()).setInsets(false,true,false,false);
+                ((MLineBorder) toolBarArea.getBorder()).setInsets(false,true,false,false);
+                ((MLineBorder) toolBar.getBorder()).setInsets(false,true,false,false);
             }else if(direction==RIGHT){
-                ((MLineBorder)tabArea.getBorder()).setInsets(true,false,false,false);
-                ((MLineBorder)toolBar.getBorder()).setInsets(true,false,false,false);
+                ((MLineBorder) toolBarArea.getBorder()).setInsets(true,false,false,false);
+                ((MLineBorder) toolBar.getBorder()).setInsets(true,false,false,false);
             }else if(direction==BOTTOM){
-                ((MLineBorder)tabArea.getBorder()).setInsets(false,false,true,false);
-                ((MLineBorder)toolBar.getBorder()).setInsets(false,false,true,false);
+                ((MLineBorder) toolBarArea.getBorder()).setInsets(false,false,true,false);
+                ((MLineBorder) toolBar.getBorder()).setInsets(false,false,true,false);
             }else if(direction==TOP){
-                ((MLineBorder)tabArea.getBorder()).setInsets(false,false,false,true);
-                ((MLineBorder)toolBar.getBorder()).setInsets(false,false,false,true);
+                ((MLineBorder) toolBarArea.getBorder()).setInsets(false,false,false,true);
+                ((MLineBorder) toolBar.getBorder()).setInsets(false,false,false,true);
             }
 
         }
@@ -286,24 +297,24 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
         }
 
 
-        splitMode.boundInGlass = SwingUtilities.convertRectangle(splitMode,splitMode.getBounds(),intelliJPanel.getGlassPane());
-        unSplitMode.boundInGlass = SwingUtilities.convertRectangle(unSplitMode,unSplitMode.getBounds(),intelliJPanel.getGlassPane());
+        splitModeTabBar.boundInGlass = SwingUtilities.convertRectangle(splitModeTabBar, splitModeTabBar.getBounds(),intelliJPanel.getGlassPane());
+        unSplitModeTabBar.boundInGlass = SwingUtilities.convertRectangle(unSplitModeTabBar, unSplitModeTabBar.getBounds(),intelliJPanel.getGlassPane());
 
         updateHoverSize();
     }
 
 
-    public IJPanelTabMode getMode(int splitMode){
+    public DockTabBar getMode(int splitMode){
         if(splitMode==MODE_SPLIT){
-            return this.splitMode;
+            return this.splitModeTabBar;
         }else if(splitMode == MODE_UNSPLIT){
-            return unSplitMode;
+            return unSplitModeTabBar;
         }else{
             throw new UnsupportedOperationException("UnSupported MODE");
         }
     }
 
-    public IJPanelTabToolBar getToolBar() {
+    public DockToolBar getToolBar() {
         return toolBar;
     }
 
@@ -349,15 +360,14 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
     }
 
-    JXImageView panel1;
-    JXImageView panel2;
+
     public void highLight(){
         if(!isHighLight){
             isHighLight = true;
 
 
-            BufferedImage bufferedImage1 = new BufferedImage(Math.max(splitMode.boundInGlass.width,20),Math.max(splitMode.boundInGlass.height,20),BufferedImage.TYPE_INT_ARGB);
-            BufferedImage bufferedImage2 = new BufferedImage(Math.max(splitMode.boundInGlass.width,20),Math.max(splitMode.boundInGlass.height,20),BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bufferedImage1 = new BufferedImage(Math.max(splitModeTabBar.boundInGlass.width,20),Math.max(splitModeTabBar.boundInGlass.height,20),BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bufferedImage2 = new BufferedImage(Math.max(splitModeTabBar.boundInGlass.width,20),Math.max(splitModeTabBar.boundInGlass.height,20),BufferedImage.TYPE_INT_ARGB);
             Color color = highLightColor;
             {
                 Graphics2D graphics2D =  bufferedImage1.createGraphics();
@@ -373,21 +383,20 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
                 graphics2D.dispose();
             }
 
-            panel1 = new JXImageView();
-            panel2 = new JXImageView();
 
 
-            panel1.setBounds(splitMode.boundInGlass);
-            panel2.setBounds(unSplitMode.boundInGlass);
 
-            panel1.setImage(bufferedImage1);
-            panel2.setImage(bufferedImage2);
+            highLightPanel_split.setBounds(splitModeTabBar.boundInGlass);
+            highLightPanel_unsplit.setBounds(unSplitModeTabBar.boundInGlass);
+
+            highLightPanel_split.setImage(bufferedImage1);
+            highLightPanel_unsplit.setImage(bufferedImage2);
 
 
-            ((JXPanel)intelliJPanel.getGlassPane()).add(panel1);
-            ((JXPanel)intelliJPanel.getGlassPane()).add(panel2);
-            panel1.setAlpha(0.3f);
-            panel2.setAlpha(0.3f);
+            ((JXPanel)intelliJPanel.getGlassPane()).add(highLightPanel_split);
+            ((JXPanel)intelliJPanel.getGlassPane()).add(highLightPanel_unsplit);
+            highLightPanel_split.setAlpha(0.3f);
+            highLightPanel_unsplit.setAlpha(0.3f);
             ((JXPanel)intelliJPanel.getGlassPane()).updateUI();
 
         }
@@ -397,10 +406,10 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
         if(isHighLight){
             isHighLight = false;
             try{
-                ((JXPanel)intelliJPanel.getGlassPane()).remove(panel1);
+                ((JXPanel)intelliJPanel.getGlassPane()).remove(highLightPanel_split);
             }catch (Throwable t){}
             try{
-                ((JXPanel)intelliJPanel.getGlassPane()).remove(panel2);
+                ((JXPanel)intelliJPanel.getGlassPane()).remove(highLightPanel_unsplit);
             }catch (Throwable t){}
             ((JXPanel)intelliJPanel.getGlassPane()).updateUI();
         }
@@ -408,28 +417,28 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
     void updateHoverSize(){
 
-        if((splitMode.getComponentCount()+unSplitMode.getComponentCount())>0){
-            splitMode.boundInGlass = SwingUtilities.convertRectangle(modeArea,splitMode.getBounds(),intelliJPanel.getGlassPane());
-            unSplitMode.boundInGlass = SwingUtilities.convertRectangle(modeArea,unSplitMode.getBounds(),intelliJPanel.getGlassPane());
+        if((splitModeTabBar.getComponentCount()+ unSplitModeTabBar.getComponentCount())>0){
+            splitModeTabBar.boundInGlass = SwingUtilities.convertRectangle(tabBarArea, splitModeTabBar.getBounds(),intelliJPanel.getGlassPane());
+            unSplitModeTabBar.boundInGlass = SwingUtilities.convertRectangle(tabBarArea, unSplitModeTabBar.getBounds(),intelliJPanel.getGlassPane());
 
         }else{
 
             if((direction==LEFT)){
-                unSplitMode.boundInGlass = new Rectangle(getX()+toolBar.getX()+toolBar.getWidth(),getY()+toolBar.getY(),defaultModeAreaSize,getHeight()/2);
-                splitMode.boundInGlass = new Rectangle(getX()+toolBar.getX()+toolBar.getWidth(),getY()+toolBar.getY()+getHeight()/2,defaultModeAreaSize,getHeight()/2);
+                unSplitModeTabBar.boundInGlass = new Rectangle(getX()+ toolBar.getX()+ toolBar.getWidth(),getY()+ toolBar.getY(),defaultModeAreaSize,getHeight()/2);
+                splitModeTabBar.boundInGlass = new Rectangle(getX()+ toolBar.getX()+ toolBar.getWidth(),getY()+ toolBar.getY()+getHeight()/2,defaultModeAreaSize,getHeight()/2);
 
             }else if(direction==RIGHT){
-                unSplitMode.boundInGlass = new Rectangle(getX()+toolBar.getX()-defaultModeAreaSize,getY()+toolBar.getY(),defaultModeAreaSize,getHeight()/2);
-                splitMode.boundInGlass = new Rectangle(getX()+toolBar.getX()-defaultModeAreaSize,getY()+toolBar.getY()+getHeight()/2,defaultModeAreaSize,getHeight()/2);
+                unSplitModeTabBar.boundInGlass = new Rectangle(getX()+ toolBar.getX()-defaultModeAreaSize,getY()+ toolBar.getY(),defaultModeAreaSize,getHeight()/2);
+                splitModeTabBar.boundInGlass = new Rectangle(getX()+ toolBar.getX()-defaultModeAreaSize,getY()+ toolBar.getY()+getHeight()/2,defaultModeAreaSize,getHeight()/2);
 
             }
             else if((direction==TOP)){
-                unSplitMode.boundInGlass = new Rectangle(getX()+toolBar.getX(),getY()+toolBar.getY()+toolBar.getHeight(),getWidth()/2,defaultModeAreaSize);
-                splitMode.boundInGlass = new Rectangle(getX()+toolBar.getX()+getWidth()/2,getY()+toolBar.getY()+toolBar.getHeight(),getWidth()/2,defaultModeAreaSize);
+                unSplitModeTabBar.boundInGlass = new Rectangle(getX()+ toolBar.getX(),getY()+ toolBar.getY()+ toolBar.getHeight(),getWidth()/2,defaultModeAreaSize);
+                splitModeTabBar.boundInGlass = new Rectangle(getX()+ toolBar.getX()+getWidth()/2,getY()+ toolBar.getY()+ toolBar.getHeight(),getWidth()/2,defaultModeAreaSize);
 
             }else if(direction==BOTTOM){
-                unSplitMode.boundInGlass = new Rectangle(getX()+toolBar.getX(),getY()+getHeight()-toolBar.getHeight()-defaultModeAreaSize,getWidth()/2,defaultModeAreaSize);
-                splitMode.boundInGlass = new Rectangle(toolBar.getX()+getWidth()/2,getY()+getHeight()-toolBar.getHeight()-defaultModeAreaSize,getWidth()/2,defaultModeAreaSize);
+                unSplitModeTabBar.boundInGlass = new Rectangle(getX()+ toolBar.getX(),getY()+getHeight()- toolBar.getHeight()-defaultModeAreaSize,getWidth()/2,defaultModeAreaSize);
+                splitModeTabBar.boundInGlass = new Rectangle(toolBar.getX()+getWidth()/2,getY()+getHeight()- toolBar.getHeight()-defaultModeAreaSize,getWidth()/2,defaultModeAreaSize);
             }
         }
 
@@ -438,20 +447,20 @@ public class IJPanelTabBar extends JXPanel implements LayoutManager {
 
     }
 
-    public java.util.List<IJTabItem> getActiveTabs(){
-        java.util.List<IJTabItem> list = new ArrayList<>();
-        for(JComponent c: splitMode.tabList){
-            if(c instanceof IJTabItem){
-                if(((IJTabItem) c).isSelected()){
-                    list.add((IJTabItem) c);
+    public java.util.List<DockTab> getActiveTabs(){
+        java.util.List<DockTab> list = new ArrayList<>();
+        for(JComponent c: splitModeTabBar.tabList){
+            if(c instanceof DockTab){
+                if(((DockTab) c).isSelected()){
+                    list.add((DockTab) c);
                     break;
                 }
             }
         }
-        for(JComponent c: unSplitMode.tabList){
-            if(c instanceof IJTabItem){
-                if(((IJTabItem) c).isSelected()){
-                    list.add((IJTabItem) c);
+        for(JComponent c: unSplitModeTabBar.tabList){
+            if(c instanceof DockTab){
+                if(((DockTab) c).isSelected()){
+                    list.add((DockTab) c);
                     break;
                 }
             }

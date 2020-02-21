@@ -1,9 +1,9 @@
-package com.yunxin.gui.share.component;
+package com.yunxin.guipack.share.component;
 
 import com.formdev.flatlaf.ui.FlatEmptyBorder;
-import com.yunxin.gui.share.icon.CompoundIcon;
-import com.yunxin.gui.share.icon.RotatedIcon;
-import com.yunxin.gui.share.icon.TextIcon;
+import com.yunxin.guipack.share.icon.CompoundIcon;
+import com.yunxin.guipack.share.icon.RotatedIcon;
+import com.yunxin.guipack.share.icon.TextIcon;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

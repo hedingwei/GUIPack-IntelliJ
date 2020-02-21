@@ -1,13 +1,4 @@
-# GUIPack-IntelliJ
-这个项目主要提供一组能够构建像IntelliJ的界面一样的组件集合。
-
-##界面截图示例
-![a](doc/demo1.png)
-
-
-
-##代码示例
-```java
+package com.yunxin.mygui.intellij;
 
 import com.formdev.flatlaf.icons.*;
 import com.yunxin.guipack.intellij.framework.IntelliJPanel;
@@ -90,5 +81,3 @@ public class Demo {
     }
 
 }
-
-```

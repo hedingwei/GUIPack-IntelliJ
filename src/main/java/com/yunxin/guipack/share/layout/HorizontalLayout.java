@@ -1,4 +1,4 @@
-package com.yunxin.gui.share.layout;
+package com.yunxin.guipack.share.layout;
 
 import java.awt.*;
 
