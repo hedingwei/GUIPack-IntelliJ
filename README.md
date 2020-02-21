@@ -4,6 +4,7 @@
 ##界面截图示例
 ![a](doc/demo1.png)
 
+![b](doc/demo-video.gif)
 
 
 ##代码示例
