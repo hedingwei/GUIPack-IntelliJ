@@ -4,6 +4,7 @@ import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 
 public abstract class DockTabView extends JXPanel{
     private JPanel contentHolder = null;
@@ -40,5 +41,8 @@ public abstract class DockTabView extends JXPanel{
     public void setPartContent(Component content){
         contentHolder.removeAll();
         contentHolder.add(content,BorderLayout.CENTER);
+        content.setMinimumSize(new Dimension(0,0));
+        content.addMouseMotionListener(new MouseAdapter() {});
+        content.addMouseListener(new MouseAdapter() {});
     }
 }

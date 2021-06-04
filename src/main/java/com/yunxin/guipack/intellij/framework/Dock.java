@@ -467,4 +467,9 @@ public class Dock extends JXPanel implements LayoutManager {
         }
         return list;
     }
+
+    public JSplitPane getTabContent() {
+        return tabContent;
+    }
+
 }

@@ -7,9 +7,13 @@ import java.awt.*;
 
 public class SimpleDockTabView extends DockTabView {
 
-    private JToolBar toolBar ;
-    private JToolBar trailingBar;
-    private MLabel titleLabel ;
+    protected JToolBar toolBar ;
+    protected JToolBar trailingBar;
+    protected MLabel titleLabel ;
+    protected JPanel headerPanel;
+
+    public SimpleDockTabView() {
+    }
 
     public SimpleDockTabView(String title) {
         this.titleLabel.setText(title);
@@ -29,17 +33,24 @@ public class SimpleDockTabView extends DockTabView {
         toolBar.setRollover(true);
         toolBar.setFloatable(false);
 
+        trailingBar = new JToolBar();
+        trailingBar.setRollover(true);
+        trailingBar.setFloatable(false);
+
+        headerPanel = new JPanel();
+
     }
 
     @Override
     protected void setupTitleLeadingPart(JToolBar toolBar) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
 
-        panel.add(toolBar,BorderLayout.WEST);
-        add(panel,BorderLayout.NORTH);
+        headerPanel.setLayout(new BorderLayout());
+
+        headerPanel.add(toolBar,BorderLayout.WEST);
+        headerPanel.add(trailingBar, BorderLayout.CENTER);
+        add(headerPanel,BorderLayout.NORTH);
         toolBar.add(titleLabel);
-        panel.setBorder(new MLineBorder(IntelliJPanel.defaultBorderColor,1,false,false,false,true));
+        headerPanel.setBorder(new MLineBorder(IntelliJPanel.defaultBorderColor,1,false,false,false,true));
 
     }
 
@@ -51,7 +62,7 @@ public class SimpleDockTabView extends DockTabView {
 
     @Override
     protected JToolBar buildTitleTrailingPart() {
-        return toolBar;
+        return trailingBar;
     }
 
     @Override

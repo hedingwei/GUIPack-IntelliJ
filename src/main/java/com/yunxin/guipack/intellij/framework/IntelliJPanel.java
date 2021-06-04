@@ -2,8 +2,6 @@ package com.yunxin.guipack.intellij.framework;
 
 import com.yunxin.guipack.share.SwingUtils;
 import com.yunxin.guipack.share.component.BetterGlassPane;
-import org.jdesktop.swingx.JXEditorPane;
-import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXRootPane;
 
@@ -23,7 +21,7 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
     public static int MODE_UNSPLIT = 1;
 
 
-    Dock[] tabBars = new Dock[4];
+    Dock[] docks = new Dock[4];
 
     static Color defaultBorderColor = null;
     static int defaultTabDivederSize = 6;
@@ -43,21 +41,21 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
 
     private void initComponents() {
 
-        tabBars[LEFT] = new Dock(this, LEFT);
-        tabBars[RIGHT] = new Dock(this, RIGHT);
-        tabBars[TOP] = new Dock(this,TOP);
-        tabBars[BOTTOM] = new Dock(this,BOTTOM);
+        docks[LEFT] = new Dock(this, LEFT);
+        docks[RIGHT] = new Dock(this, RIGHT);
+        docks[TOP] = new Dock(this,TOP);
+        docks[BOTTOM] = new Dock(this,BOTTOM);
 
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(tabBars[LEFT],BorderLayout.WEST);
-        getContentPane().add(tabBars[RIGHT],BorderLayout.EAST);
-        getContentPane().add(tabBars[TOP],BorderLayout.NORTH);
-        getContentPane().add(tabBars[BOTTOM],BorderLayout.SOUTH);
+        getContentPane().add(docks[LEFT],BorderLayout.WEST);
+        getContentPane().add(docks[RIGHT],BorderLayout.EAST);
+        getContentPane().add(docks[TOP],BorderLayout.NORTH);
+        getContentPane().add(docks[BOTTOM],BorderLayout.SOUTH);
 
-        getContentPane().setComponentZOrder(tabBars[LEFT],getContentPane().getComponentCount()-1);
-        getContentPane().setComponentZOrder(tabBars[RIGHT],getContentPane().getComponentCount()-1);
-        getContentPane().setComponentZOrder(tabBars[TOP],getContentPane().getComponentCount()-1);
-        getContentPane().setComponentZOrder(tabBars[BOTTOM],getContentPane().getComponentCount()-1);
+        getContentPane().setComponentZOrder(docks[LEFT],getContentPane().getComponentCount()-1);
+        getContentPane().setComponentZOrder(docks[RIGHT],getContentPane().getComponentCount()-1);
+        getContentPane().setComponentZOrder(docks[TOP],getContentPane().getComponentCount()-1);
+        getContentPane().setComponentZOrder(docks[BOTTOM],getContentPane().getComponentCount()-1);
 
         getContentPane().addMouseListener(new MouseAdapter() {});
         getContentPane().addMouseMotionListener(new MouseAdapter() {});
@@ -67,13 +65,20 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
 
     }
 
+    public void setCentralComponent(Component component){
+        getContentPane().add(component,BorderLayout.CENTER);
+        component.addMouseListener(new MouseAdapter() {});
+        component.addMouseMotionListener(new MouseAdapter() {});
+
+    }
+
 
     public DockTab addTab(int direction, int split_mode, String text, Icon icon, DockTabView view){
-        return tabBars[direction].getMode(split_mode).addTab(text,icon,view);
+        return docks[direction].getMode(split_mode).addTab(text,icon,view);
     }
 
     public DockTab addTab(Direction direction, SplitMode split_mode, String text, Icon icon, DockTabView view){
-        return tabBars[direction.ordinal()].getMode(split_mode.ordinal()).addTab(text,icon,view);
+        return docks[direction.ordinal()].getMode(split_mode.ordinal()).addTab(text,icon,view);
     }
 
 
@@ -82,14 +87,14 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
     public java.util.List<DockTab> getTabs(int direction, int split_mode){
         java.util.List<DockTab> list = new ArrayList<>();
         if(split_mode==MODE_SPLIT){
-            Component[] components = tabBars[direction].splitModeTabBar.getComponents();
+            Component[] components = docks[direction].splitModeTabBar.getComponents();
             for(Component c: components){
                 if(c instanceof DockTab){
                     list.add((DockTab) c);
                 }
             }
         }else if(split_mode == MODE_UNSPLIT){
-            Component[] components = tabBars[direction].unSplitModeTabBar.getComponents();
+            Component[] components = docks[direction].unSplitModeTabBar.getComponents();
             for(Component c: components){
                 if(c instanceof DockTab){
                     list.add((DockTab) c);
@@ -108,7 +113,7 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
 
     public DockTab getActiveTab(int direction, int split_mode){
         if(split_mode==MODE_UNSPLIT){
-            Component[] components = tabBars[direction].unSplitModeTabBar.getComponents();
+            Component[] components = docks[direction].unSplitModeTabBar.getComponents();
             for(Component c: components){
                 if(c instanceof DockTab){
                     if(((DockTab) c).isSelected()){
@@ -117,7 +122,7 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
                 }
             }
         }else if(split_mode==MODE_SPLIT){
-            Component[] components = tabBars[direction].splitModeTabBar.getComponents();
+            Component[] components = docks[direction].splitModeTabBar.getComponents();
             for(Component c: components){
                 if(c instanceof DockTab){
                     if(((DockTab) c).isSelected()){
@@ -129,20 +134,26 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
         return null;
     }
 
-    public DockToolBar getToolBar(int direction){ return tabBars[direction].toolBar; }
+    public DockToolBar getToolBar(int direction){ return docks[direction].toolBar; }
 
-    public DockToolBar getToolBar(Direction direction){ return tabBars[direction.ordinal()].toolBar; }
+    public DockToolBar getToolBar(Direction direction){ return docks[direction.ordinal()].toolBar; }
 
 
-    public void setTabVisible(int direction, boolean visible){ tabBars[direction].tabBarArea.setVisible(visible); }
+    public void setTabVisible(int direction, boolean visible){ docks[direction].tabBarArea.setVisible(visible); }
 
     public void setTabItemViewSize(DockTab item, int size){ item.tabViewSize = size;}
 
     void updateHighLightBounds(){
         for(int i=0;i<4;i++){
-            tabBars[i].updateHoverSize();
+            docks[i].updateHoverSize();
         }
     }
+
+
+    public Dock getDock(Direction direction){
+        return docks[direction.ordinal()];
+    }
+
 
     public void clearHighLighter(){
         ((JXPanel)getGlassPane()).removeAll();
@@ -162,26 +173,26 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
             }
 
 
-            Dimension tmpDim = tabBars[activeResizeTabBar].getSize();
+            Dimension tmpDim = docks[activeResizeTabBar].getSize();
             if(activeResizeTabBar==LEFT){
-                tmpDim.width = e.getX() - tabBars[activeResizeTabBar].toolBarArea.getWidth();
-                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.width = e.getX() - docks[activeResizeTabBar].toolBarArea.getWidth();
+                for(DockTab tabItem: docks[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.width;
                 }
             }else if(activeResizeTabBar==RIGHT){
-                tmpDim.width = (getWidth()-e.getX()) - tabBars[activeResizeTabBar].toolBarArea.getWidth();
-                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.width = (getWidth()-e.getX()) - docks[activeResizeTabBar].toolBarArea.getWidth();
+                for(DockTab tabItem: docks[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.width;
                 }
 
             }else if(activeResizeTabBar==TOP){
-                tmpDim.height = e.getY() - tabBars[activeResizeTabBar].toolBarArea.getHeight();
-                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.height = e.getY() - docks[activeResizeTabBar].toolBarArea.getHeight();
+                for(DockTab tabItem: docks[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.height;
                 }
             }else if(activeResizeTabBar==BOTTOM){
-                tmpDim.height = (getHeight()-e.getY()) - tabBars[activeResizeTabBar].toolBarArea.getHeight();
-                for(DockTab tabItem: tabBars[activeResizeTabBar].getActiveTabs()){
+                tmpDim.height = (getHeight()-e.getY()) - docks[activeResizeTabBar].toolBarArea.getHeight();
+                for(DockTab tabItem: docks[activeResizeTabBar].getActiveTabs()){
                     tabItem.tabViewSize = tmpDim.height;
                 }
             }
@@ -191,9 +202,9 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
             if(tmpDim.height<=0){
                 tmpDim.height=0;
             }
-            tabBars[activeResizeTabBar].tabContent.setPreferredSize(tmpDim);
+            docks[activeResizeTabBar].tabContent.setPreferredSize(tmpDim);
 
-            tabBars[activeResizeTabBar].updateUI();
+            docks[activeResizeTabBar].updateUI();
         }
 
     }
@@ -203,10 +214,10 @@ public class IntelliJPanel extends JXRootPane implements MouseMotionListener, Mo
         if(!isDragging){
             Rectangle r = null;
             for(int i=0;i<4;i++){
-                r = tabBars[i].getSliderBound();
+                r = docks[i].getSliderBound();
                 if(r!=null){
-                    if(r.contains(e.getPoint())&&tabBars[i].isActive()){
-                        getGlassPane().setCursor(tabBars[i].getSliderCursor());
+                    if(r.contains(e.getPoint())&& docks[i].isActive()){
+                        getGlassPane().setCursor(docks[i].getSliderCursor());
                         activeResizeTabBar = i;
                         return;
                     }else{

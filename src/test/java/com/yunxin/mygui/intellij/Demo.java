@@ -55,6 +55,8 @@ public class Demo {
                                 }
                         );
 
+                Icon icon = new FlatTreeCollapsedIcon();
+
                 intelliJPanel.addTab(Left, UnSplit,"Project",new FlatFileViewComputerIcon(),new SimpleDockTabView("Project"){{setPartContent(new JXEditorPane());}});
                 intelliJPanel.addTab(Left,Split,"Structure", new FlatInternalFrameIconifyIcon(), new SimpleDockTabView("Structure"));
 
@@ -65,7 +67,8 @@ public class Demo {
                 intelliJPanel.addTab(Top,Split,"Help", new FlatHelpButtonIcon(), new SimpleDockTabView("Help"));
 
                 intelliJPanel.addTab(Bottom, UnSplit,"Run",new FlatTreeCollapsedIcon(),new SimpleDockTabView("Run"){{setPartContent(new JXEditorPane());}});
-                intelliJPanel.addTab(Bottom,Split,"Console", new FlatHelpButtonIcon(), new SimpleDockTabView("Console"));
+//                intelliJPanel.addTab(Bottom,Split,"Console", Accessories_text_editor.of(icon.getIconWidth(),icon.getIconHeight()), new SimpleDockTabView("Console"));
+//                intelliJPanel.addTab(Bottom,Split,"Console", Accessories_text_editor.of(100,100), new SimpleDockTabView("Console"));
 
 
                 JXFrame frame = new JXFrame("IntelliJ GUI Demo");

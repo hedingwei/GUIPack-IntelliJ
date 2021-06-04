@@ -18,11 +18,11 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
 
 
 
-    DockTabBar mode;
+    DockTabBar tabBar;
 
     DockTabView view;
 
-    int tabViewSize = 100;
+    int tabViewSize = -1;
 
     int splitLocation = 200;
 
@@ -31,12 +31,12 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
 
 
 
-    public DockTab(String text, Icon icon, DockTabBar mode, DockTabView view) {
+    public DockTab(String text, Icon icon, DockTabBar tabBar, DockTabView view) {
         this.text = text;
         this.icon = icon;
-        this.mode = mode;
+        this.tabBar = tabBar;
         this.view = view;
-        setBackground(mode.getBackground());
+        setBackground(tabBar.getBackground());
         updateIcons();
         addItemListener(this);
 
@@ -57,10 +57,10 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
         }
 
         Icon ri;
-        if(mode.tab.direction == IntelliJPanel.LEFT){
+        if(tabBar.tab.direction == IntelliJPanel.LEFT){
             ri = new RotatedIcon(ci, RotatedIcon.Rotate.UP);
             setBorder(new EmptyBorder(UIScale.scale(10),UIScale.scale(4),UIScale.scale(10),UIScale.scale(4)));
-        }else if(mode.tab.direction == IntelliJPanel.RIGHT){
+        }else if(tabBar.tab.direction == IntelliJPanel.RIGHT){
             ri = new RotatedIcon(ci, RotatedIcon.Rotate.DOWN);
             setBorder(new EmptyBorder(UIScale.scale(10),UIScale.scale(4),UIScale.scale(10),UIScale.scale(4)));
         }else{
@@ -76,77 +76,77 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
     public void itemStateChanged(ItemEvent e) {
 
         if(isSelected()){
-            mode.setSelectedExcept(this,true);
-            if(mode.mode == MODE_SPLIT){
-                mode.tab.tabContent.setRightComponent(view);
+            tabBar.setSelectedExcept(this,true);
+            if(tabBar.mode == MODE_SPLIT){
+                tabBar.tab.tabContent.setRightComponent(view);
             }else{
-                mode.tab.tabContent.setLeftComponent(view);
+                tabBar.tab.tabContent.setLeftComponent(view);
             }
             if(tabViewSize >=0){
-                if((mode.tab.direction== IntelliJPanel.LEFT)||mode.tab.direction== IntelliJPanel.RIGHT){
-                    mode.tab.tabContent.setPreferredSize(new Dimension(tabViewSize,mode.tab.tabContent.getHeight()));
+                if((tabBar.tab.direction== IntelliJPanel.LEFT)|| tabBar.tab.direction== IntelliJPanel.RIGHT){
+                    tabBar.tab.tabContent.setPreferredSize(new Dimension(tabViewSize, tabBar.tab.tabContent.getHeight()));
                 }else{
-                    mode.tab.tabContent.setPreferredSize(new Dimension(mode.tab.tabContent.getWidth(), tabViewSize));
+                    tabBar.tab.tabContent.setPreferredSize(new Dimension(tabBar.tab.tabContent.getWidth(), tabViewSize));
                 }
             }
 
-            mode.tab.tabContent.setVisible(isSelected());
-            mode.activeItem = this;
+            tabBar.tab.tabContent.setVisible(isSelected());
+            tabBar.activeItem = this;
 
         }else{
-            if(mode.mode == MODE_SPLIT){
-                if(mode.tab.tabContent.getBottomComponent()==view){
-                    mode.tab.tabContent.setBottomComponent(null);
+            if(tabBar.mode == MODE_SPLIT){
+                if(tabBar.tab.tabContent.getBottomComponent()==view){
+                    tabBar.tab.tabContent.setBottomComponent(null);
                 }else{
 
                 }
             }else{
-                if(mode.tab.tabContent.getTopComponent()==view){
-                    mode.tab.tabContent.setTopComponent(null);
+                if(tabBar.tab.tabContent.getTopComponent()==view){
+                    tabBar.tab.tabContent.setTopComponent(null);
                 }
             }
             boolean hasActive = false;
-            for(Component c: mode.tabList){
+            for(Component c: tabBar.tabList){
                 if(c instanceof DockTab){
                     if(((DockTab) c).isSelected()){
-                        mode.activeItem = (DockTab) c;
+                        tabBar.activeItem = (DockTab) c;
                         hasActive = true;
                     }
                 }
             }
             if(!hasActive){
-                mode.activeItem = null;
+                tabBar.activeItem = null;
             }
 
         }
 
-        if(mode.tab.tabContent.getComponentCount()==3){
-            mode.tab.tabContent.setVisible(true);
-            mode.tab.tabContent.setDividerLocation(splitLocation);
-            mode.tab.tabContent.setDividerSize(mode.tab.intelliJPanel.defaultTabDivederSize);
-            if((mode.tab.direction== IntelliJPanel.LEFT)||(mode.tab.direction== IntelliJPanel.RIGHT)){
-                ((MLineBorder)mode.tab.splitModeTabBar.activeItem.view.getBorder()).setInsets(false,false,true,false);
-                ((MLineBorder)mode.tab.unSplitModeTabBar.activeItem.view.getBorder()).setInsets(false,false,false,true);
+        if(tabBar.tab.tabContent.getComponentCount()==3){
+            tabBar.tab.tabContent.setVisible(true);
+            tabBar.tab.tabContent.setDividerLocation(splitLocation);
+            tabBar.tab.tabContent.setDividerSize(tabBar.tab.intelliJPanel.defaultTabDivederSize);
+            if((tabBar.tab.direction== IntelliJPanel.LEFT)||(tabBar.tab.direction== IntelliJPanel.RIGHT)){
+                ((MLineBorder) tabBar.tab.splitModeTabBar.activeItem.view.getBorder()).setInsets(false,false,true,false);
+                ((MLineBorder) tabBar.tab.unSplitModeTabBar.activeItem.view.getBorder()).setInsets(false,false,false,true);
             }else{
-                ((MLineBorder)mode.tab.splitModeTabBar.activeItem.view.getBorder()).setInsets(true,false,false,false);
-                ((MLineBorder)mode.tab.unSplitModeTabBar.activeItem.view.getBorder()).setInsets(false,true,false,false);
+                ((MLineBorder) tabBar.tab.splitModeTabBar.activeItem.view.getBorder()).setInsets(true,false,false,false);
+                ((MLineBorder) tabBar.tab.unSplitModeTabBar.activeItem.view.getBorder()).setInsets(false,true,false,false);
             }
         }else{
-            mode.tab.tabContent.setDividerSize(0);
-            if(mode.tab.tabContent.getComponentCount()==1){
-                mode.tab.tabContent.setVisible(false);
-            }else if(mode.tab.tabContent.getComponentCount()==2){
-                mode.tab.tabContent.setVisible(true);
+            tabBar.tab.tabContent.setDividerSize(0);
+            if(tabBar.tab.tabContent.getComponentCount()==1){
+                tabBar.tab.tabContent.setVisible(false);
+            }else if(tabBar.tab.tabContent.getComponentCount()==2){
+                tabBar.tab.tabContent.setVisible(true);
             }
         }
 
         updateIcons();
 
-        mode.tab.revalidate();
+        tabBar.tab.revalidate();
     }
 
     public Container getGlassPane(){
-        return (Container) mode.tab.intelliJPanel.getGlassPane();
+        return (Container) tabBar.tab.intelliJPanel.getGlassPane();
     }
 
 
@@ -181,8 +181,8 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
         synchronized (getTreeLock()){
             if(!isDragging){
                 isDragging = true;
-                tmpParentMode = mode;
-                tmpParentIndex = mode.getTabIndex(this);
+                tmpParentMode = tabBar;
+                tmpParentIndex = tabBar.getTabIndex(this);
                 setVisible(false);
                 initPoint = e.getPoint();
                 dragImageLabel.setPreferredSize(getSize());
@@ -193,16 +193,16 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
                 glueButton.setBackground(SwingUtils.darken(IntelliJPanel.defaultBorderColor,20));
                 getImageOfComponent();
                 getGlassPane().add(dragImageLabel);
-                mode.tab.refresh();
-                mode.tab.updateHoverSize();
+                tabBar.tab.refresh();
+                tabBar.tab.updateHoverSize();
             }
 
             if(isDragging){
 
                 for(int i=0;i<4;i++){
-                    mode.tab.intelliJPanel.tabBars[i].updateHoverSize();
+                    tabBar.tab.intelliJPanel.docks[i].updateHoverSize();
                 }
-                dragPointInGlassPane = SwingUtilities.convertPoint(e.getComponent(),e.getX(),e.getY(),mode.tab.intelliJPanel.getGlassPane());
+                dragPointInGlassPane = SwingUtilities.convertPoint(e.getComponent(),e.getX(),e.getY(), tabBar.tab.intelliJPanel.getGlassPane());
                 dragImageLabel.setLocation(dragPointInGlassPane.x-initPoint.x,dragPointInGlassPane.y-initPoint.y);
                 DockTabBar tmp =  getSplitMode(dragPointInGlassPane);
 
@@ -222,7 +222,7 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
                     dragToMode.tab.highLight();
                     cleanGlueButton();
 
-                    Component component = SwingUtilities.getDeepestComponentAt(mode.tab.intelliJPanel.getContentPane(),dragPointInGlassPane.x,dragPointInGlassPane.y);
+                    Component component = SwingUtilities.getDeepestComponentAt(tabBar.tab.intelliJPanel.getContentPane(),dragPointInGlassPane.x,dragPointInGlassPane.y);
                     if(component instanceof DockTab){
                         Point p = SwingUtilities.convertPoint(getGlassPane(),dragPointInGlassPane.x,dragPointInGlassPane.y,component);
                         tempIndex = dragToMode.getTabIndex((DockTab) component);
@@ -304,10 +304,10 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
                     }
                 }
 
-                mode = dragToMode;
+                tabBar = dragToMode;
                 updateIcons();
-                mode.tab.refresh();
-                mode.updateUI();
+                tabBar.tab.refresh();
+                tabBar.updateUI();
                 setSelected(isSelected);
             }
 
@@ -318,7 +318,7 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
                 cleanGlueButton();
             }catch (Throwable t){}
             try {
-                mode.tab.intelliJPanel.clearHighLighter();
+                tabBar.tab.intelliJPanel.clearHighLighter();
             }catch (Throwable t){}
 
             isDragging = false;
@@ -341,11 +341,11 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
         if(mm!=null){
             for(int i=0;i<4;i++){
                 try {
-                    mm.tab.intelliJPanel.tabBars[i].splitModeTabBar.removeTab(glueButton);
+                    mm.tab.intelliJPanel.docks[i].splitModeTabBar.removeTab(glueButton);
                 }catch (Throwable t){}
 
                 try {
-                    mm.tab.intelliJPanel.tabBars[i].unSplitModeTabBar.removeTab(glueButton);
+                    mm.tab.intelliJPanel.docks[i].unSplitModeTabBar.removeTab(glueButton);
                 }catch (Throwable t){}
 
             }
@@ -357,14 +357,14 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
 
     Dock getInArea(Point p){
 
-        if(mode.tab.intelliJPanel.tabBars[IntelliJPanel.LEFT].highLightBound.contains(p)){
-            return mode.tab.intelliJPanel.tabBars[IntelliJPanel.LEFT];
-        }else if(mode.tab.intelliJPanel.tabBars[IntelliJPanel.RIGHT].highLightBound.contains(p)){
-            return mode.tab.intelliJPanel.tabBars[IntelliJPanel.RIGHT];
-        }else if(mode.tab.intelliJPanel.tabBars[IntelliJPanel.TOP].highLightBound.contains(p)){
-            return mode.tab.intelliJPanel.tabBars[IntelliJPanel.TOP];
-        }else if(mode.tab.intelliJPanel.tabBars[IntelliJPanel.BOTTOM].highLightBound.contains(p)){
-            return mode.tab.intelliJPanel.tabBars[IntelliJPanel.BOTTOM];
+        if(tabBar.tab.intelliJPanel.docks[IntelliJPanel.LEFT].highLightBound.contains(p)){
+            return tabBar.tab.intelliJPanel.docks[IntelliJPanel.LEFT];
+        }else if(tabBar.tab.intelliJPanel.docks[IntelliJPanel.RIGHT].highLightBound.contains(p)){
+            return tabBar.tab.intelliJPanel.docks[IntelliJPanel.RIGHT];
+        }else if(tabBar.tab.intelliJPanel.docks[IntelliJPanel.TOP].highLightBound.contains(p)){
+            return tabBar.tab.intelliJPanel.docks[IntelliJPanel.TOP];
+        }else if(tabBar.tab.intelliJPanel.docks[IntelliJPanel.BOTTOM].highLightBound.contains(p)){
+            return tabBar.tab.intelliJPanel.docks[IntelliJPanel.BOTTOM];
         }else{
             return null;
         }
@@ -374,13 +374,21 @@ public class DockTab extends JToggleButton implements ItemListener, MouseMotionL
 
     DockTabBar getSplitMode(Point p){
         for(int i=0;i<4;i++){
-            if(mode.tab.intelliJPanel.tabBars[i].splitModeTabBar.boundInGlass.contains(p)){
-                return mode.tab.intelliJPanel.tabBars[i].splitModeTabBar;
-            }else if(mode.tab.intelliJPanel.tabBars[i].unSplitModeTabBar.boundInGlass.contains(p)){
-                return mode.tab.intelliJPanel.tabBars[i].unSplitModeTabBar;
+            if(tabBar.tab.intelliJPanel.docks[i].splitModeTabBar.boundInGlass.contains(p)){
+                return tabBar.tab.intelliJPanel.docks[i].splitModeTabBar;
+            }else if(tabBar.tab.intelliJPanel.docks[i].unSplitModeTabBar.boundInGlass.contains(p)){
+                return tabBar.tab.intelliJPanel.docks[i].unSplitModeTabBar;
             }
         }
         return null;
+    }
+
+    public DockTabView getView() {
+        return view;
+    }
+
+    public DockTabBar getTabBar() {
+        return tabBar;
     }
 
 

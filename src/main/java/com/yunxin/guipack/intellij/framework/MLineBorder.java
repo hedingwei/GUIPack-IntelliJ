@@ -5,6 +5,11 @@ import java.awt.*;
 
 public class MLineBorder extends LineBorder {
     private boolean left=true,right=true,top=true,bottom=true;
+
+    public MLineBorder() {
+        super(Color.darkGray);
+    }
+
     public MLineBorder(Color color) {
         super(color);
     }
